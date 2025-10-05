@@ -1,9 +1,11 @@
 "use client";
-import Image from "next/image";
-import coverSignupImage from "./../../../../public/static/images/tourism_singup_image.jpg";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { IRegisterTypes } from "./register-type";
 import { schema } from "./register-validation";
+import { useAppDispatch } from "@/lib/store/hooks";
+import { registerUser } from "@/lib/store/auth/auth-slice";
+import { useRouter } from "next/navigation";
+import { showToast } from "@/lib/toastify/toastify";
 
 const errorStyle = {
   color: "red",
@@ -11,6 +13,9 @@ const errorStyle = {
 };
 
 export default function Signup() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
   const [data, setData] = useState<IRegisterTypes>({
     username: "",
     password: "",
@@ -29,28 +34,29 @@ export default function Signup() {
 
   function handleRegisterSubmission(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    //Handle validation
     const result = schema.safeParse(data);
     if (!result.success) {
       setErrors(result.error.format());
     } else {
-      //   console.log("Form Submitted!!!");
       setErrors({});
+      //After sucessful register redirect to login
+      router.push("/login");
+
+      // Sucessfull Toast Message
+      showToast({
+        text: "Registration Successful!",
+        style: { background: "#008000", color: "white" },
+      });
     }
+
+    //API Call Method Invocation
+    dispatch(registerUser(data));
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
-      <div className="w-1/2 flex items-center justify-center border-r border-gray-200">
-        <div className="w-3/4 h-3/4 flex items-center justify-center text-gray-500">
-          <Image
-            src={coverSignupImage}
-            alt="Cover Singup Image"
-            className="object-contain"
-            width={500}
-          />
-        </div>
-      </div>
-
+    <div className="flex items-center justify-center min-h-screen bg-white">
       <div className="w-1/2 flex items-center justify-center">
         <div className="w-3/4 max-w-md p-8 bg-white shadow-lg rounded-lg">
           <h2 className="text-2xl font-bold text-blue-600 mb-6">Sign up</h2>
@@ -125,18 +131,9 @@ export default function Signup() {
               Sign up
             </button>
           </form>
-          <button className="w-full mt-4 border border-gray-300 py-2 rounded-lg flex items-center justify-center hover:bg-gray-100 transition">
-            <img
-              src="https://www.svgrepo.com/show/355037/google.svg"
-              alt="Google"
-              className="w-5 h-5 mr-2"
-            />
-            Sign-up with Google
-          </button>
-
           <p className="mt-6 text-sm text-center text-gray-600">
             Already have an account?{" "}
-            <a href="/signin" className="text-blue-600 hover:underline">
+            <a href="/auth/login" className="text-blue-600 hover:underline">
               Sign in
             </a>
           </p>
