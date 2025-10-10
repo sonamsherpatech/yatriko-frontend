@@ -89,8 +89,8 @@ export default function CreateOrganization() {
       setErrors(result.error.format());
     } else {
       setErrors({});
+      dispatch(createOrganization(data));
     }
-    dispatch(createOrganization(data));
   }
 
   return (
