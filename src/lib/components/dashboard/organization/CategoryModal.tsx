@@ -50,8 +50,9 @@ const CategoryModal: React.FC<ICloseModal> = ({
           color: "white",
         },
       });
-      dispatch(getCategories());
       dispatch(resetStatus());
+      dispatch(getCategories());
+      console.log(status);
       modalClose();
     } else if (status === Status.ERROR) {
       showToast({

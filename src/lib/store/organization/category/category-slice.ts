@@ -44,15 +44,16 @@ const organizationCategorySlice = createSlice({
     },
     setCategoryEdit(
       state: IOrganizationCategoryInitialState,
-      action: PayloadAction<any>
+      action: PayloadAction<{
+        id: string;
+        data: Partial<IOrganizationCategoryType>;
+      }>
     ) {
       const categoryId = action.payload.id;
       const data = action.payload.data;
-      const index = state.category.findIndex(
-        (category) => category.id === categoryId
-      );
+      const index = state.category.findIndex((cat) => cat.id === categoryId);
       if (index !== -1) {
-        state.category[1] = data;
+        state.category[index] = { ...state.category[index], ...data };
       }
     },
     setError(
@@ -72,6 +73,7 @@ export const {
   resetStatus,
   setCategory,
   setCategoryDelete,
+  setCategoryEdit,
   setError,
   setStatus,
 } = organizationCategorySlice.actions;
@@ -160,6 +162,7 @@ export function editCategory(id: string, data: any) {
       const response = await API.patch(`/organization/category/${id}`, data);
       if (response.status === 200) {
         dispatch(setStatus(Status.SUCCESS));
+        dispatch(setCategoryEdit({ id, data: response.data.data }));
         dispatch(setError(null));
       } else {
         dispatch(setStatus(Status.ERROR));

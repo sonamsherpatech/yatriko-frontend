@@ -1,16 +1,21 @@
 "use client";
+import CategoryModal from "@/lib/components/dashboard/organization/CategoryModal";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { getCategory } from "@/lib/store/organization/category/category-slice";
+import {
+  getCategory,
+  resetStatus,
+} from "@/lib/store/organization/category/category-slice";
 import { Status } from "@/lib/types";
 import { ArrowLeft, Calendar, Edit3 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function CategoryDetailPage() {
   const router = useRouter();
   const params = useParams();
   const dispatch = useAppDispatch();
   const categoryId = params.id as string;
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const { status, error, category } = useAppSelector(
     (store) => store.organizationCategory
@@ -18,11 +23,23 @@ export default function CategoryDetailPage() {
 
   useEffect(() => {
     if (categoryId) {
+      dispatch(resetStatus());
       dispatch(getCategory(categoryId));
     }
   }, [categoryId, dispatch]);
 
-  if (status === Status.LOADING) {
+  const modalOpen = () => {
+    dispatch(resetStatus());
+    setIsModalOpen(true);
+  };
+  const modalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const selectedCategory =
+    category.find((cat) => cat.id === categoryId) || category[0];
+
+  if (status === Status.LOADING && !isModalOpen && category.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div role="status">
@@ -48,7 +65,7 @@ export default function CategoryDetailPage() {
     );
   }
 
-  if (error || !category) {
+  if (error || !selectedCategory) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="text-xl text-red-600 mb-4">Category Not Found</div>
@@ -64,6 +81,13 @@ export default function CategoryDetailPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
+      {isModalOpen && (
+        <CategoryModal
+          modalClose={modalClose}
+          categoryToEdit={selectedCategory}
+        />
+      )}
+
       <div className="mb-6">
         <button
           onClick={() => router.push("/dashboard/organization/category")}
@@ -75,7 +99,7 @@ export default function CategoryDetailPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Category Details</h1>
           <button
-            onClick={() => router.push("/dashboard/organization/category")}
+            onClick={modalOpen}
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
           >
             <Edit3 size={18} />
@@ -90,7 +114,7 @@ export default function CategoryDetailPage() {
             Category Name
           </label>
           <h2 className="text-2xl font-semibold textgray800 mt-2">
-            {category[0]?.categoryName}
+            {selectedCategory?.categoryName}
           </h2>
         </div>
 
@@ -99,7 +123,7 @@ export default function CategoryDetailPage() {
             Category Description
           </label>
           <h2 className="text-2xl font-semibold textgray800 mt-2">
-            {category[0]?.categoryDescription}
+            {selectedCategory?.categoryDescription}
           </h2>
         </div>
 
@@ -107,7 +131,7 @@ export default function CategoryDetailPage() {
           <Calendar size={18} />
           <span className="  text-sm">
             Created on{" "}
-            {new Date(category[0]?.createdAt).toLocaleDateString("en-US", {
+            {new Date(selectedCategory?.createdAt).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",

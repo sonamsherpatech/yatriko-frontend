@@ -27,11 +27,12 @@ export default function OrganizationTourCategory() {
   const dispatch = useAppDispatch();
   const isDeleting = useRef(false);
   const router = useRouter();
-  const filteredData = categories.filter(
-    (category) =>
-      category.categoryName.toLowerCase().includes(searchCategory) ||
-      category.categoryDescription.toLowerCase().includes(searchCategory)
-  );
+  const filteredData =
+    categories?.filter(
+      (category) =>
+        category.categoryName.toLowerCase().includes(searchCategory) ||
+        category.categoryDescription.toLowerCase().includes(searchCategory)
+    ) || [];
 
   const modalOpen = () => {
     isDeleting.current = false;
@@ -47,6 +48,7 @@ export default function OrganizationTourCategory() {
   };
 
   function handleSelectCategory(id: string) {
+    dispatch(resetStatus());
     router.push(`/dashboard/organization/category/${id}`);
   }
 
