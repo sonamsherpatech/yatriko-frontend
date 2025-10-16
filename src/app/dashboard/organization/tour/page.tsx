@@ -1,19 +1,32 @@
 "use client";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import {
+  getTours,
+  resetStatus,
+} from "@/lib/store/organization/tour/tour-slice";
 import { Edit3, MousePointerSquareDashed, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-const filteredData = [
-  {
-    id: "123",
-    tourName: "Everest Base Camp",
-    tourNoOfPeople: "45",
-    tourPrice: "45000",
-    tourStatus: "active",
-  },
-];
+import { useEffect } from "react";
 
 export default function organizationTour() {
   const router = useRouter();
+  const {
+    error,
+    status,
+    tour: tours,
+  } = useAppSelector((store) => store.organizationTour);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getTours());
+    dispatch(resetStatus());
+    console.log(status);
+  }, [dispatch]);
+    console.log(status);
+
+
+  // dispatch(resetStatus());
+
   return (
     <div className="p-8">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -48,55 +61,47 @@ export default function organizationTour() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.length > 0 ? (
-                filteredData.map(
-                  (cat: {
-                    id: string;
-                    tourName: string;
-                    tourNoOfPeople: string;
-                    tourPrice: string;
-                    tourStatus: string;
-                  }) => (
-                    <tr key={cat.id} className=" transition-colors border-b">
-                      <td className="px-4 py-3 text-gray-700 font-medium">
-                        {cat.tourName}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {cat.tourNoOfPeople}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {cat.tourPrice}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {cat.tourStatus}
-                      </td>
-                      <td className="px-4 py-3 flex justify-center gap-3 text-gray-600">
-                        <button
-                          title="Edit"
-                          className="hover:text-blue-600 cursor-pointer transition"
-                        >
-                          <Edit3 size={18} />
-                        </button>
-                        <button
-                          title="Delete"
-                          className="hover:text-red-600 cursor-pointer transition"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                        <button
-                          title="Select"
-                          className="hover:text-green-600 cursor-pointer transition"
-                        >
-                          <MousePointerSquareDashed size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                )
+              {tours.length > 0 ? (
+                tours.map((tour) => (
+                  <tr key={tour.tourId} className=" transition-colors border-b">
+                    <td className="px-4 py-3 text-gray-700 font-medium">
+                      {tour.tourTitle}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {tour.tourNumberOfPeople}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {tour.tourPrice}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {tour.tourStatus}
+                    </td>
+                    <td className="px-4 py-3 flex justify-center gap-3 text-gray-600">
+                      <button
+                        title="Edit"
+                        className="hover:text-blue-600 cursor-pointer transition"
+                      >
+                        <Edit3 size={18} />
+                      </button>
+                      <button
+                        title="Delete"
+                        className="hover:text-red-600 cursor-pointer transition"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                      <button
+                        title="Select"
+                        className="hover:text-green-600 cursor-pointer transition"
+                      >
+                        <MousePointerSquareDashed size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
               ) : (
                 <tr>
                   <td colSpan={4} className="text-center text-gray-500 py-4">
-                    No Categories found.
+                    No Tours found.
                   </td>
                 </tr>
               )}

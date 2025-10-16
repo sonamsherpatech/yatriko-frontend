@@ -41,6 +41,7 @@ export default function CreateOrganization() {
   }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    console.log(e.target.files?.[0])
     const file = e.target.files?.[0];
     if (file) {
       setData({

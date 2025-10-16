@@ -52,7 +52,6 @@ const CategoryModal: React.FC<ICloseModal> = ({
       });
       dispatch(resetStatus());
       dispatch(getCategories());
-      console.log(status);
       modalClose();
     } else if (status === Status.ERROR) {
       showToast({

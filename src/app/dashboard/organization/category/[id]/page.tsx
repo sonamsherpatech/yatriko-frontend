@@ -39,7 +39,7 @@ export default function CategoryDetailPage() {
   const selectedCategory =
     category.find((cat) => cat.id === categoryId) || category[0];
 
-  if (status === Status.LOADING && !isModalOpen && category.length === 0) {
+  if (status === Status.LOADING) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div role="status">

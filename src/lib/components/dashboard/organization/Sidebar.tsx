@@ -21,8 +21,10 @@ export default function Sidebar() {
         <Image
           src="/static/images/logo_yatriko.png"
           alt="Company Logo"
-          height={100}
           width={100}
+          height={100}
+          className="h-auto w-auto"
+          priority
         />
       </div>
 

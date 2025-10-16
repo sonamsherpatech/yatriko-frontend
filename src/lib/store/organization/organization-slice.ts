@@ -16,7 +16,7 @@ const initialState: IOrganizationInitialState = {
     organizationPhoneNumber: "",
     organizationVatNo: "",
   },
-  status: Status.LOADING,
+  status: Status.IDLE,
   error: null,
 };
 
@@ -40,7 +40,7 @@ const organizationSlice = createSlice({
       state.error = action.payload;
     },
     resetStatus(state: IOrganizationInitialState) {
-      state.status = Status.LOADING;
+      state.status = Status.IDLE;
       state.error = null;
     },
   },

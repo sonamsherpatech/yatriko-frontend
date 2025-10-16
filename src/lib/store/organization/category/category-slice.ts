@@ -10,7 +10,7 @@ import { ICategoryType } from "@/app/dashboard/organization/category/organizatio
 
 const initialState: IOrganizationCategoryInitialState = {
   category: [],
-  status: Status.LOADING,
+  status: Status.IDLE,
   error: null,
 };
 
@@ -63,7 +63,7 @@ const organizationCategorySlice = createSlice({
       state.error = action.payload;
     },
     resetStatus(state: IOrganizationCategoryInitialState) {
-      state.status = Status.LOADING;
+      state.status = Status.IDLE;
       state.error = null;
     },
   },
@@ -83,7 +83,8 @@ export default organizationCategorySlice.reducer;
 // 1. API call to insert category
 export function createCategory(data: ICategoryType) {
   return async function createCategoryThunk(dispatch: AppDispacth) {
-    dispatch(resetStatus());
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
     try {
       //API Call
       const response = await API.post("/organization/category/", data);
@@ -108,7 +109,8 @@ export function createCategory(data: ICategoryType) {
 // 2. API call to get all categories
 export function getCategories() {
   return async function getCategoriesThunk(dispatch: AppDispacth) {
-    dispatch(resetStatus());
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
     try {
       const response = await API.get("/organization/category/");
       if (response.status === 200) {
@@ -133,7 +135,8 @@ export function getCategories() {
 //3. API call to delete category
 export function deleteCategory(id: string) {
   return async function deleteCategoryThunk(dispatch: AppDispacth) {
-    dispatch(resetStatus());
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
     try {
       const response = await API.delete(`/organization/category/${id}`);
       if (response.status === 200) {
@@ -157,7 +160,8 @@ export function deleteCategory(id: string) {
 //4. API call to edit category
 export function editCategory(id: string, data: any) {
   return async function editCategoryThunk(dispatch: AppDispacth) {
-    dispatch(resetStatus());
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
     try {
       const response = await API.patch(`/organization/category/${id}`, data);
       if (response.status === 200) {
@@ -181,14 +185,14 @@ export function editCategory(id: string, data: any) {
 //5. API call to select/get individaul category
 export function getCategory(id: string) {
   return async function getCategoryThunk(dispatch: AppDispacth) {
-    dispatch(resetStatus());
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
     try {
       const response = await API.get(`/organization/category/${id}`);
       if (response.status === 200) {
-        dispatch(setStatus(Status.SUCCESS));
-        dispatch(setError(null));
         response.data.data.length > 0 &&
           dispatch(setCategory(response.data.data));
+        dispatch(setStatus(Status.SUCCESS));
       } else {
         dispatch(setStatus(Status.ERROR));
         dispatch(setError("Failed to fetch category"));

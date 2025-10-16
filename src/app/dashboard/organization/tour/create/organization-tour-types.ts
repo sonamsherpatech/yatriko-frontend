@@ -1,10 +1,11 @@
 export interface IOrganizationTourType {
-  tourName: string;
+  tourTitle: string;
   tourDescription: string;
-  tourNoOfPeople: string;
+  tourNumberOfPeople: string;
   tourPrice: string;
   tourPhoto?: File | string;
   tourDuration: string;
-  tourStartDate?: Date | string;
-  tourEndDate?: Date | string;
+  tourStartDate: string;
+  tourEndDate: string;
+  categoryIds: string[];
 }

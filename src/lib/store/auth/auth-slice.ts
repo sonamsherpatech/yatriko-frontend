@@ -10,7 +10,7 @@ const initialState: IUserInitialState = {
   user: {
     username: "",
   },
-  status: Status.LOADING,
+  status: Status.IDLE,
   token: null,
   isAuthenticated: false,
   error: null,
@@ -34,13 +34,14 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
     setReset(state: IUserInitialState) {
-      (state.status = Status.LOADING), (state.error = null);
+      state.status = Status.IDLE;
+      state.error = null;
     },
     logout(state: IUserInitialState) {
       state.token = null;
       state.isAuthenticated = false;
       state.user = { username: "" };
-      state.status = Status.LOADING;
+      state.status = Status.IDLE;
       state.error = null;
       if (typeof window != "undefined") {
         localStorage.removeItem("token");
