@@ -28,6 +28,7 @@ export const schema = z
         "*must include uppercase, lowercase, number and special characters"
       ),
     confirmPassword: z.string().nonempty("*cannot be empty"),
+    
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "*password doesn't match",

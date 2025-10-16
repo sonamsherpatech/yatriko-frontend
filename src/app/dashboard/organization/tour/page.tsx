@@ -20,12 +20,12 @@ export default function organizationTour() {
   useEffect(() => {
     dispatch(getTours());
     dispatch(resetStatus());
-    console.log(status);
-  }, [dispatch]);
-    console.log(status);
+  }, []);
 
-
-  // dispatch(resetStatus());
+  const handleCreateTour = () => {
+    dispatch(resetStatus());
+    router.push("/dashboard/organization/tour/create");
+  };
 
   return (
     <div className="p-8">
@@ -33,7 +33,7 @@ export default function organizationTour() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-semibold text-gray-800">Tours</h1>
           <button
-            onClick={() => router.push("/dashboard/organization/tour/create")}
+            onClick={handleCreateTour}
             className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition"
           >
             Add Tour <span className="text-lg font-bold">+</span>

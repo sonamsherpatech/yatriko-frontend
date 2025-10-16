@@ -28,4 +28,6 @@ export const schema = z.object({
     .nonempty("*cannot be empty")
     .max(255, "*too long")
     .trim(),
+  organizationPanNo: z.string().length(9, "*should be of 9 digit"),
+  organizationVatNo: z.string().length(9, "*should be of 9 digit"),
 });

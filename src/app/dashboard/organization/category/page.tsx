@@ -70,6 +70,7 @@ export default function OrganizationTourCategory() {
     dispatch(getCategories());
     dispatch(resetStatus());
   }, []);
+  console.log(status)
 
   useEffect(() => {
     if (isDeleting.current) {

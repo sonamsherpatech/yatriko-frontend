@@ -41,7 +41,7 @@ export default function CreateOrganization() {
   }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-    console.log(e.target.files?.[0])
+    console.log(e.target.files?.[0]);
     const file = e.target.files?.[0];
     if (file) {
       setData({
@@ -61,6 +61,7 @@ export default function CreateOrganization() {
       organizationVatNo:
         value === "organizationVatNo" ? prev.organizationVatNo : "",
     }));
+    setErrors({});
   }
 
   useEffect(() => {
@@ -213,6 +214,9 @@ export default function CreateOrganization() {
                 } number`}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               />
+              {errors[orgType] && (
+                <p style={errorStyle}>{errors[orgType]._errors[0]}</p>
+              )}
             </div>
           )}
 

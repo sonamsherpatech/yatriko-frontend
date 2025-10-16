@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   IOrganizationTourInitialState,
-  IOrganizationTourType as IOrganizationTourTypes
+  IOrganizationTourType as IOrganizationTourTypes,
 } from "./tour-slice-types";
 import { Status } from "@/lib/types";
 import { AppDispacth } from "../../store";
@@ -102,9 +102,9 @@ export function getTours() {
     try {
       const response = await API.get(`/organization/tour`);
       if (response.status === 200) {
+        response.data.data.length > 0 && dispatch(setTour(response.data.data));
         dispatch(setStatus(Status.SUCCESS));
         dispatch(setError(null));
-        dispatch(setTour(response.data.data));
       } else {
         dispatch(setStatus(Status.ERROR));
         dispatch(setError("Failed to fetch tours"));
