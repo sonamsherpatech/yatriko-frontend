@@ -3,7 +3,7 @@ import { IUserData, IUserInitialState } from "./auth-slice-types";
 import { Status } from "@/lib/types";
 import API from "@/lib/http";
 import { IRegisterType } from "@/app/(auth)/register/register-type";
-import { AppDispacth } from "../store";
+import { AppDispatch } from "../store";
 import { ILoginType } from "@/app/(auth)/login/login-type";
 
 const initialState: IUserInitialState = {
@@ -57,7 +57,7 @@ export default authSlice.reducer;
 //api call --> custom thunk
 
 export function registerUser(data: IRegisterType) {
-  return async function registerUserThunk(dispatch: AppDispacth) {
+  return async function registerUserThunk(dispatch: AppDispatch) {
     dispatch(setReset());
     try {
       const response = await API.post("/register", data);
@@ -79,7 +79,7 @@ export function registerUser(data: IRegisterType) {
 }
 
 export function loginUser(data: ILoginType) {
-  return async function loginUserThunk(dispatch: AppDispacth) {
+  return async function loginUserThunk(dispatch: AppDispatch) {
     dispatch(setReset());
     try {
       const response = await API.post("/login", data);
@@ -110,7 +110,7 @@ export function loginUser(data: ILoginType) {
 }
 
 export function checkAuth() {
-  return async function checkAuthThunk(dispatch: AppDispacth) {
+  return async function checkAuthThunk(dispatch: AppDispatch) {
     if (typeof window !== undefined) {
       const token = localStorage.getItem("token");
 

@@ -4,7 +4,7 @@ import {
   IOrganizationCategoryType,
 } from "./category-slice-types";
 import { Status } from "@/lib/types";
-import { AppDispacth } from "../../store";
+import { AppDispatch } from "../../store";
 import API from "@/lib/http";
 import { ICategoryType } from "@/app/dashboard/organization/category/organization-category-type";
 
@@ -82,7 +82,7 @@ export default organizationCategorySlice.reducer;
 //Category Thunk
 // 1. API call to insert category
 export function createCategory(data: ICategoryType) {
-  return async function createCategoryThunk(dispatch: AppDispacth) {
+  return async function createCategoryThunk(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {
@@ -108,7 +108,7 @@ export function createCategory(data: ICategoryType) {
 
 // 2. API call to get all categories
 export function getCategories() {
-  return async function getCategoriesThunk(dispatch: AppDispacth) {
+  return async function getCategoriesThunk(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {
@@ -134,7 +134,7 @@ export function getCategories() {
 
 //3. API call to delete category
 export function deleteCategory(id: string) {
-  return async function deleteCategoryThunk(dispatch: AppDispacth) {
+  return async function deleteCategoryThunk(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {
@@ -159,7 +159,7 @@ export function deleteCategory(id: string) {
 
 //4. API call to edit category
 export function editCategory(id: string, data: any) {
-  return async function editCategoryThunk(dispatch: AppDispacth) {
+  return async function editCategoryThunk(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {
@@ -184,7 +184,7 @@ export function editCategory(id: string, data: any) {
 
 //5. API call to select/get individaul category
 export function getCategory(id: string) {
-  return async function getCategoryThunk(dispatch: AppDispacth) {
+  return async function getCategoryThunk(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {

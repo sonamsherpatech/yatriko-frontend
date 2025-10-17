@@ -15,7 +15,7 @@ const store = configureStore({
 
 // react-reduxt --> hooks --> useDispacth, useSelector
 
-export type AppDispacth = typeof store.dispatch;
+export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
 
 export default store;

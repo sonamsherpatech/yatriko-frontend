@@ -30,8 +30,12 @@ export default function OrganizationTourCategory() {
   const filteredData =
     categories?.filter(
       (category) =>
-        category.categoryName.toLowerCase().includes(searchCategory) ||
-        category.categoryDescription.toLowerCase().includes(searchCategory)
+        category.categoryName
+          .toLowerCase()
+          .includes(searchCategory.toLowerCase()) ||
+        category.categoryDescription
+          .toLowerCase()
+          .includes(searchCategory.toLowerCase())
     ) || [];
 
   const modalOpen = () => {
@@ -70,7 +74,6 @@ export default function OrganizationTourCategory() {
     dispatch(getCategories());
     dispatch(resetStatus());
   }, []);
-  console.log(status)
 
   useEffect(() => {
     if (isDeleting.current) {

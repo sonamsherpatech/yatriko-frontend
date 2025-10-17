@@ -87,10 +87,14 @@ export default function CreateOrganization() {
   function handleOrganizationDataSubmission(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const result = schema.safeParse(data);
+    console.log("Validation result: ", result);
+
     if (!result.success) {
       setErrors(result.error.format());
     } else {
       setErrors({});
+      console.log("Dispatching organization data: ", data);
+
       dispatch(createOrganization(data));
     }
   }
@@ -207,7 +211,11 @@ export default function CreateOrganization() {
               <input
                 type="text"
                 name={orgType}
-                value={data.organizationPanNo || data.organizationVatNo}
+                value={
+                  orgType === "organizationPanNo"
+                    ? data.organizationPanNo
+                    : data.organizationVatNo
+                }
                 onChange={handleOrganizationDataChange}
                 placeholder={`Enter ${
                   orgType === "organizationPanNo" ? "PAN" : "VAT"

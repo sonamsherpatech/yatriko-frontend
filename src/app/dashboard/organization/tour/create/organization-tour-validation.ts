@@ -37,7 +37,7 @@ const schema = z
       }, "*date cannot be in the past"),
     tourEndDate: z.string().nonempty("*cannot be empty"),
   })
-  .refine((data) => new Date(data.tourEndDate) > new Date(data.tourStartDate), {
+  .refine((data) => new Date(data.tourEndDate) >= new Date(data.tourStartDate), {
     message: "*end date must be after start date",
     path: ["tourEndDate"],
   });

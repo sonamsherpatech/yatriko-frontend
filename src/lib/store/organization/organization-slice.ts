@@ -4,7 +4,7 @@ import {
   IOrganizationType,
 } from "./organization-slice-types";
 import { Status } from "@/lib/types";
-import { AppDispacth } from "../store";
+import { AppDispatch } from "../store";
 import API from "@/lib/http";
 const initialState: IOrganizationInitialState = {
   organization: {
@@ -52,7 +52,7 @@ export default organizationSlice.reducer;
 
 //ORGANIZATION THUNK
 export function createOrganization(data: IOrganizationType) {
-  return async function createOrganizationThunk(dispatch: AppDispacth) {
+  return async function createOrganizationThunk(dispatch: AppDispatch) {
     dispatch(resetStatus());
     try {
       //Form data for file upload

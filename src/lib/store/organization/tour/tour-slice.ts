@@ -4,9 +4,9 @@ import {
   IOrganizationTourType as IOrganizationTourTypes,
 } from "./tour-slice-types";
 import { Status } from "@/lib/types";
-import { AppDispacth } from "../../store";
 import API from "@/lib/http";
 import { IOrganizationTourType } from "@/app/dashboard/organization/tour/create/organization-tour-types";
+import { AppDispatch } from "../../store";
 
 const initialState: IOrganizationTourInitialState = {
   tour: [],
@@ -30,6 +30,31 @@ const organizationTourSlice = createSlice({
     ) {
       state.status = action.payload;
     },
+    setTourEdit(
+      state: IOrganizationTourInitialState,
+      action: PayloadAction<{
+        tourId: string;
+        data: Partial<IOrganizationTourTypes>;
+      }>
+    ) {
+      const tourId = action.payload.tourId;
+      const editedData = action.payload.data;
+
+      const index = state.tour.findIndex((tour) => tour.tourId === tourId);
+      if (index !== -1) {
+        state.tour[index] = { ...state.tour[index], ...editedData };
+      }
+    },
+    setTourDelete(
+      state: IOrganizationTourInitialState,
+      action: PayloadAction<string>
+    ) {
+      const tourId = action.payload;
+      const index = state.tour.findIndex((tour) => tour.tourId === tourId);
+      if (index !== -1) {
+        state.tour.splice(index, 1);
+      }
+    },
     setError(
       state: IOrganizationTourInitialState,
       action: PayloadAction<string | null>
@@ -43,15 +68,15 @@ const organizationTourSlice = createSlice({
   },
 });
 
-export const { setTour, setStatus, resetStatus, setError } =
+export const { setTour, setStatus, resetStatus, setError, setTourDelete } =
   organizationTourSlice.actions;
 export default organizationTourSlice.reducer;
 
 //Tour Thnuk
 
-//1. Create Tour
+//1. API call to create Tour
 export function createTour(data: IOrganizationTourType) {
-  return async function createTourThunk(dispatch: AppDispacth) {
+  return async function createTourThunk(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {
@@ -94,9 +119,9 @@ export function createTour(data: IOrganizationTourType) {
   };
 }
 
-//2. Get Tour
+//2. API call to get all Tours
 export function getTours() {
-  return async function getToursThunk(dispatch: AppDispacth) {
+  return async function getToursThunk(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {
@@ -115,5 +140,39 @@ export function getTours() {
         setError(error.response?.data?.message || "Failed to fetch tours")
       );
     }
+  };
+}
+
+//3. API call to  delete Tour
+export function deleteTour(id?: string) {
+  return async function deleteTourThunk(dispatch: AppDispatch) {
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
+    try {
+      const response = await API.delete(`/organization/tour/${id}`);
+      if (response.status === 200) {
+        dispatch(setStatus(Status.SUCCESS));
+        dispatch(setError(null));
+        dispatch(getTours());
+      } else {
+        dispatch(setStatus(Status.ERROR));
+        dispatch(setError("Failed to delete tour"));
+      }
+    } catch (error: any) {
+      dispatch(setStatus(Status.ERROR));
+      dispatch(
+        setError(error.response?.data?.message || "Failed to delete tour")
+      );
+    }
+  };
+}
+
+//4. API call to edit Tour
+export function editTour(id: string, data: any) {
+  return async function editTourThunk(dispatch: AppDispatch) {
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
+    try {
+    } catch (error: any) {}
   };
 }

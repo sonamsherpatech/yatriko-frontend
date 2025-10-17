@@ -1,12 +1,15 @@
 "use client";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import {
+  deleteTour,
   getTours,
   resetStatus,
 } from "@/lib/store/organization/tour/tour-slice";
+import { showToast } from "@/lib/toastify/toastify";
+import { Status } from "@/lib/types";
 import { Edit3, MousePointerSquareDashed, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function organizationTour() {
   const router = useRouter();
@@ -16,16 +19,57 @@ export default function organizationTour() {
     tour: tours,
   } = useAppSelector((store) => store.organizationTour);
   const dispatch = useAppDispatch();
+  const isDeleting = useRef(false);
+
+  const [tourQuery, setTourQuery] = useState<string>("");
+
+  const handleCreateTour = () => {
+    dispatch(resetStatus());
+    router.push("/dashboard/organization/tour/create");
+  };
+
+  const handleDeleteTour = (tourId?: string) => {
+    if (tourId) {
+      isDeleting.current = true;
+      dispatch(deleteTour(tourId));
+      dispatch(resetStatus());
+    }
+  };
 
   useEffect(() => {
     dispatch(getTours());
     dispatch(resetStatus());
   }, []);
 
-  const handleCreateTour = () => {
-    dispatch(resetStatus());
-    router.push("/dashboard/organization/tour/create");
-  };
+  useEffect(() => {
+    if (isDeleting.current) {
+      if (status === Status.SUCCESS) {
+        showToast({
+          text: "Deleted tour sucessfully",
+          style: {
+            color: "white",
+            background: "#008000",
+          },
+        });
+        dispatch(resetStatus());
+        isDeleting.current = false;
+      } else if (status === Status.ERROR) {
+        showToast({
+          text: error || "Failed to delete tour",
+          style: {
+            color: "white",
+            background: "#800000",
+          },
+        });
+        dispatch(resetStatus());
+        isDeleting.current = false;
+      }
+    }
+  }, [status, error]);
+
+  const filteredData = tours?.filter((tour) =>
+    tour.tourTitle.toString().toLowerCase().includes(tourQuery.toLowerCase())
+  );
 
   return (
     <div className="p-8">
@@ -44,6 +88,8 @@ export default function organizationTour() {
           <input
             type="text"
             name="SearchTour"
+            onChange={(e) => setTourQuery(e.target.value)}
+            value={tourQuery}
             placeholder="Search Tour"
             className="w-80 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
           />
@@ -53,7 +99,7 @@ export default function organizationTour() {
           <table className="w-full border-collapse">
             <thead>
               <tr className=" text-gray-700 text-left">
-                <th className="px-4 py-3 border-b">Name</th>
+                <th className="px-4 py-3 border-b">Title</th>
                 <th className="px-4 py-3 border-b">No of People</th>
                 <th className="px-4 py-3 border-b">Price</th>
                 <th className="px-4 py-3 border-b">Status</th>
@@ -61,8 +107,8 @@ export default function organizationTour() {
               </tr>
             </thead>
             <tbody>
-              {tours.length > 0 ? (
-                tours.map((tour) => (
+              {filteredData.length > 0 ? (
+                filteredData.map((tour) => (
                   <tr key={tour.tourId} className=" transition-colors border-b">
                     <td className="px-4 py-3 text-gray-700 font-medium">
                       {tour.tourTitle}
@@ -73,7 +119,17 @@ export default function organizationTour() {
                     <td className="px-4 py-3 text-gray-600">
                       {tour.tourPrice}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td
+                      className={`px-4 py-3 text-sm font-medium ${
+                        tour.tourStatus === "active"
+                          ? " text-green-700"
+                          : tour.tourStatus === "inactive"
+                          ? " text-gray-600"
+                          : tour.tourStatus === "cancelled"
+                          ? " text-red-700"
+                          : " text-yellow-700"
+                      }`}
+                    >
                       {tour.tourStatus}
                     </td>
                     <td className="px-4 py-3 flex justify-center gap-3 text-gray-600">
@@ -84,6 +140,7 @@ export default function organizationTour() {
                         <Edit3 size={18} />
                       </button>
                       <button
+                        onClick={() => handleDeleteTour(tour.tourId)}
                         title="Delete"
                         className="hover:text-red-600 cursor-pointer transition"
                       >
