@@ -80,7 +80,7 @@ export default function CategoryDetailPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="px-4 py-3 max-w-6xl mx-auto">
       {isModalOpen && (
         <CategoryModal
           modalClose={modalClose}
@@ -91,7 +91,7 @@ export default function CategoryDetailPage() {
       <div className="mb-6">
         <button
           onClick={() => router.push("/dashboard/organization/category")}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 cursor-pointer"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-5 cursor-pointer"
         >
           <ArrowLeft size={20} /> Back to Categories
         </button>

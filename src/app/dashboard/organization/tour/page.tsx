@@ -28,6 +28,13 @@ export default function organizationTour() {
     router.push("/dashboard/organization/tour/create");
   };
 
+  const handleEditTour = (tourId?: string) => {
+    if (tourId) {
+      dispatch(resetStatus());
+      router.push(`/dashboard/organization/tour/edit/${tourId}`);
+    }
+  };
+
   const handleDeleteTour = (tourId?: string) => {
     if (tourId) {
       isDeleting.current = true;
@@ -134,6 +141,7 @@ export default function organizationTour() {
                     </td>
                     <td className="px-4 py-3 flex justify-center gap-3 text-gray-600">
                       <button
+                        onClick={() => handleEditTour(tour.tourId)}
                         title="Edit"
                         className="hover:text-blue-600 cursor-pointer transition"
                       >

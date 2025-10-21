@@ -10,6 +10,7 @@ import { AppDispatch } from "../../store";
 
 const initialState: IOrganizationTourInitialState = {
   tour: [],
+  currentTour: null,
   status: Status.IDLE,
   error: null,
 };
@@ -23,6 +24,12 @@ const organizationTourSlice = createSlice({
       action: PayloadAction<IOrganizationTourTypes[]>
     ) {
       state.tour = action.payload;
+    },
+    setCurrentTour(
+      state: IOrganizationTourInitialState,
+      action: PayloadAction<IOrganizationTourTypes | null>
+    ) {
+      state.currentTour = action.payload;
     },
     setStatus(
       state: IOrganizationTourInitialState,
@@ -43,6 +50,10 @@ const organizationTourSlice = createSlice({
       const index = state.tour.findIndex((tour) => tour.tourId === tourId);
       if (index !== -1) {
         state.tour[index] = { ...state.tour[index], ...editedData };
+      }
+
+      if (state.currentTour?.tourId === tourId) {
+        state.currentTour = { ...state.currentTour, ...editedData };
       }
     },
     setTourDelete(
@@ -68,8 +79,15 @@ const organizationTourSlice = createSlice({
   },
 });
 
-export const { setTour, setStatus, resetStatus, setError, setTourDelete } =
-  organizationTourSlice.actions;
+export const {
+  setTour,
+  setCurrentTour,
+  setStatus,
+  resetStatus,
+  setError,
+  setTourDelete,
+  setTourEdit,
+} = organizationTourSlice.actions;
 export default organizationTourSlice.reducer;
 
 //Tour Thnuk
@@ -168,11 +186,61 @@ export function deleteTour(id?: string) {
 }
 
 //4. API call to edit Tour
-export function editTour(id: string, data: any) {
+export function editTour(payload: { tourId: string; data: FormData }) {
   return async function editTourThunk(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {
-    } catch (error: any) {}
+      const response = await API.patch(
+        `/organization/tour/${payload.tourId}`,
+        payload.data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response.status === 200) {
+        dispatch(setStatus(Status.SUCCESS));
+        dispatch(setError(null));
+        dispatch(
+          setTourEdit({ tourId: payload.tourId, data: response.data.data })
+        );
+      } else {
+        dispatch(setStatus(Status.ERROR));
+        dispatch(setError("Failed to edit category"));
+      }
+    } catch (error: any) {
+      console.log(error);
+      dispatch(setStatus(Status.ERROR));
+      dispatch(
+        setError(error.response?.data?.message || "Failed to edit category")
+      );
+    }
+  };
+}
+
+// 5. API call to get singleTour by Id
+export function getTourById(id: string) {
+  return async function getTourByIdThunk(dispatch: AppDispatch) {
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
+    try {
+      const response = await API.get(`/organization/tour/${id}`);
+      if (response.status === 200) {
+        dispatch(setCurrentTour(response.data.data));
+        dispatch(setStatus(Status.SUCCESS));
+        dispatch(setError(null));
+      } else {
+        dispatch(setStatus(Status.ERROR));
+        dispatch(setError("Failed to fetch tour"));
+      }
+    } catch (error: any) {
+      console.log(error);
+      dispatch(setStatus(Status.ERROR));
+      dispatch(
+        setError(error.response?.data?.message || "Failed to fetch tour")
+      );
+    }
   };
 }

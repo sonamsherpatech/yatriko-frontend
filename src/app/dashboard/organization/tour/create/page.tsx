@@ -274,7 +274,6 @@ export default function CreateTour() {
           </div>
         </div>
 
-        {/* Dates */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-600 font-medium mb-1">

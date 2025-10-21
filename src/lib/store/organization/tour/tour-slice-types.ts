@@ -11,11 +11,17 @@ export interface IOrganizationTourType {
   tourEndDate: string;
   tourStartDate: string;
   tourStatus?: string;
-  categoryIds: string[];
+  categoryIds?: string[];
+  categories?: Array<{
+    categoryId: string;
+    categoryName: string;
+    categoryDescription: string;
+  }>;
 }
 
 export interface IOrganizationTourInitialState {
   tour: IOrganizationTourType[];
+  currentTour: IOrganizationTourType | null;
   status: Status;
   error: string | null;
 }
