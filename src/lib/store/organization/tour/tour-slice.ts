@@ -170,6 +170,7 @@ export function deleteTour(id?: string) {
       const response = await API.delete(`/organization/tour/${id}`);
       if (response.status === 200) {
         dispatch(setStatus(Status.SUCCESS));
+        dispatch(setTourDelete(id as string))
         dispatch(setError(null));
         dispatch(getTours());
       } else {

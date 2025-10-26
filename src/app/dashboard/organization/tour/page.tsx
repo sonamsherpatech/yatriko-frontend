@@ -28,6 +28,13 @@ export default function organizationTour() {
     router.push("/dashboard/organization/tour/create");
   };
 
+  const handleSelectTour = (tourId?: string) => {
+    if (tourId) {
+      dispatch(resetStatus());
+      router.push(`/dashboard/organization/tour/${tourId}`);
+    }
+  };
+
   const handleEditTour = (tourId?: string) => {
     if (tourId) {
       dispatch(resetStatus());
@@ -156,6 +163,9 @@ export default function organizationTour() {
                       </button>
                       <button
                         title="Select"
+                        onClick={() => {
+                          handleSelectTour(tour.tourId);
+                        }}
                         className="hover:text-green-600 cursor-pointer transition"
                       >
                         <MousePointerSquareDashed size={18} />

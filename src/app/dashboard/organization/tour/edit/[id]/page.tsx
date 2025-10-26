@@ -13,6 +13,13 @@ import { ArrowLeft, Calendar, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import schema from "../../create/organization-tour-validation";
+import { showToast } from "@/lib/toastify/toastify";
+
+const errorStyle = {
+  color: "red",
+  fontSize: "11px",
+};
 
 export default function EditTour() {
   const params = useParams();
@@ -26,9 +33,9 @@ export default function EditTour() {
 
   const { category } = useAppSelector((store) => store.organizationCategory);
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [newImageFile, setNewImageFile] = useState<File | null>(null);
-  const [keepExistingImage, setKeepExistingImage] = useState<boolean>(true);
+  const [imagePreview, setImagePreview] = useState<string | null>(null); //to store the url to display in image component
+  const [newImageFile, setNewImageFile] = useState<File | null>(null); // to store the actual file object when user selects a new image
+  const [keepExistingImage, setKeepExistingImage] = useState<boolean>(true); // to track whether we should keep the existing cloudinary image or not
 
   const [selectedCategories, setSelectedCategories] = useState<
     IOrganizationCategoryType[]
@@ -47,23 +54,20 @@ export default function EditTour() {
     tourStatus: "active",
     categoryIds: [],
   });
+  const [errors, setErrors] = useState<Record<string, any>>({});
 
-  //Fetch Tour data and categories on mount
   useEffect(() => {
     dispatch(resetStatus());
     dispatch(getTourById(tourId));
     dispatch(getCategories());
   }, [dispatch, tourId]);
 
-  // Populate form when currentTour is loaded
   useEffect(() => {
     if (currentTour) {
-      // Extract categoryIds from categories array if it exists
       const categoryIds = currentTour.categories
         ? currentTour.categories.map((cat: any) => cat.categoryId)
         : currentTour.categoryIds || [];
 
-      console.log(categoryIds, "Category IDs");
       setEditedTourData({
         tourTitle: currentTour.tourTitle || "",
         tourDescription: currentTour.tourDescription || "",
@@ -77,7 +81,6 @@ export default function EditTour() {
         tourPhoto: currentTour.tourPhoto || "",
       });
 
-      // Set image preview
       if (currentTour.tourPhoto && typeof currentTour.tourPhoto === "string") {
         setImagePreview(currentTour.tourPhoto);
         setKeepExistingImage(true);
@@ -85,21 +88,11 @@ export default function EditTour() {
     }
   }, [currentTour]);
 
-  // SEPARATE useEffect for loading categories - this is the fix!
   useEffect(() => {
-    console.log("=== CATEGORY LOADING DEBUG ===");
-    console.log("Current Tour:", currentTour);
-    console.log("Current Tour categories:", currentTour?.categories);
-    console.log("Current Tour Category IDs:", currentTour?.categoryIds);
-    console.log("All Categories:", category);
-    console.log("Category length:", category?.length);
-
     if (currentTour && category && category.length > 0) {
-      // Get category IDs from either categories array or categoryIds field
       let tourCategoryIds: string[] = [];
 
       if (currentTour.categories && Array.isArray(currentTour.categories)) {
-        // Backend returned full category objects
         tourCategoryIds = currentTour.categories.map((cat: any) =>
           String(cat.categoryId)
         );
@@ -107,44 +100,63 @@ export default function EditTour() {
         currentTour.categoryIds &&
         Array.isArray(currentTour.categoryIds)
       ) {
-        // Backend returned just IDs
         tourCategoryIds = currentTour.categoryIds.map((id) => String(id));
       }
-
-      console.log("Extracted category IDs:", tourCategoryIds);
 
       if (tourCategoryIds.length > 0) {
         const selected = category.filter((cat: IOrganizationCategoryType) => {
           const matches = tourCategoryIds.includes(String(cat.id));
-          console.log(`Category ${cat.categoryName} (${cat.id}): ${matches}`);
           return matches;
         });
-
-        console.log("Selected Categories:", selected);
         setSelectedCategories(selected);
       }
-    } else {
-      console.log("Conditions not met:");
-      console.log("- currentTour exists:", !!currentTour);
-      console.log("- category exists:", !!category);
-      console.log("- category length:", category?.length);
     }
   }, [currentTour?.categories, currentTour?.categoryIds, category]);
 
   useEffect(() => {
     if (isSubmitting && status === Status.SUCCESS) {
+      setIsSubmitting(false);
+      showToast({
+        text: "Tour updated sucessfully",
+        style: {
+          background: "#008000",
+          color: "white",
+        },
+      });
       router.push("/dashboard/organization/tour");
+    } else if (status === Status.ERROR) {
+      showToast({
+        text: error || "Failed to updated tour",
+        style: {
+          background: "#800000",
+          color: "white",
+        },
+      });
     }
-  }, [status, router, isSubmitting]);
+  }, [status, router, error, isSubmitting]);
 
   function handleTourDataChange(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
     const { name, value } = e.target;
-    setEditedTourData({
+    let updatedData = {
       ...editedTourData,
       [name]: value,
-    });
+    };
+
+    if (name === "tourStartDate" || name === "tourEndDate") {
+      const { tourStartDate, tourEndDate } = updatedData;
+      if (tourStartDate && tourEndDate) {
+        const start = new Date(tourStartDate);
+        const end = new Date(tourEndDate);
+        const diffTime = end.getTime() - start.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        updatedData.tourDuration = diffDays > 0 ? diffDays.toString() : "0";
+      } else {
+        updatedData.tourDuration = "";
+      }
+    }
+    setEditedTourData(updatedData);
   }
 
   function handleImageChange(e: ChangeEvent<HTMLInputElement>) {
@@ -219,33 +231,40 @@ export default function EditTour() {
 
   function handleTourDataSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    const submitData = new FormData();
-    submitData.append("tourTitle", editedTourData.tourTitle || "");
-    submitData.append("tourDescription", editedTourData.tourDescription || "");
-    submitData.append(
-      "tourNumberOfPeople",
-      editedTourData.tourNumberOfPeople || ""
-    );
-    submitData.append("tourPrice", editedTourData.tourPrice || "");
-    submitData.append("tourDuration", editedTourData.tourDuration || "");
-    submitData.append("tourStartDate", editedTourData.tourStartDate || "");
-    submitData.append("tourEndDate", editedTourData.tourEndDate || "");
-    submitData.append("tourStatus", editedTourData.tourStatus || "active");
-
-    if (editedTourData.categoryIds && editedTourData.categoryIds.length > 0) {
+    const result = schema.safeParse(editedTourData);
+    if (!result.success) {
+      setErrors(result.error.format());
+    } else {
+      setIsSubmitting(true);
+      const submitData = new FormData();
+      submitData.append("tourTitle", editedTourData.tourTitle || "");
       submitData.append(
-        "categoryIds",
-        JSON.stringify(editedTourData.categoryIds)
+        "tourDescription",
+        editedTourData.tourDescription || ""
       );
-    }
+      submitData.append(
+        "tourNumberOfPeople",
+        editedTourData.tourNumberOfPeople || ""
+      );
+      submitData.append("tourPrice", editedTourData.tourPrice || "");
+      submitData.append("tourDuration", editedTourData.tourDuration || "");
+      submitData.append("tourStartDate", editedTourData.tourStartDate || "");
+      submitData.append("tourEndDate", editedTourData.tourEndDate || "");
+      submitData.append("tourStatus", editedTourData.tourStatus || "active");
 
-    if (newImageFile) {
-      submitData.append("tourPhoto", newImageFile);
-    }
+      if (editedTourData.categoryIds && editedTourData.categoryIds.length > 0) {
+        submitData.append(
+          "categoryIds",
+          JSON.stringify(editedTourData.categoryIds)
+        );
+      }
 
-    dispatch(editTour({ tourId, data: submitData }));
+      if (newImageFile) {
+        submitData.append("tourPhoto", newImageFile);
+      }
+      setErrors({});
+      dispatch(editTour({ tourId, data: submitData }));
+    }
   }
 
   if (status === Status.LOADING && !currentTour) {
@@ -259,7 +278,7 @@ export default function EditTour() {
   return (
     <div className="px-4 max-w-6xl mx-auto">
       <button
-        onClick={() => router.back()}
+        onClick={() => router.push(`/dashboard/organization/tour`)}
         className="flex items-center gap-2 text-gray-600 hover:text-gray-800 ml-4 mb-6 cursor-pointer"
       >
         <ArrowLeft size={20} /> Back to tours
@@ -288,6 +307,9 @@ export default function EditTour() {
               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
               required
             />
+            {errors.tourTitle && (
+              <p style={errorStyle}>{errors.tourTitle._errors[0]}</p>
+            )}
           </div>
 
           {/* Tour Description */}
@@ -303,6 +325,9 @@ export default function EditTour() {
               placeholder="Write a short description..."
               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
             />
+            {errors.tourDescription && (
+              <p style={errorStyle}>{errors.tourDescription._errors[0]}</p>
+            )}
           </div>
 
           {/* Tour Price and Tour Number of People */}
@@ -312,12 +337,17 @@ export default function EditTour() {
                 Number of People
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 name="tourNumberOfPeople"
                 value={editedTourData.tourNumberOfPeople}
                 onChange={handleTourDataChange}
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
               />
+              {errors.tourNumberOfPeople && (
+                <p style={errorStyle}>{errors.tourNumberOfPeople._errors[0]}</p>
+              )}
             </div>
 
             <div>
@@ -325,12 +355,17 @@ export default function EditTour() {
                 Price
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 name="tourPrice"
                 value={editedTourData.tourPrice}
                 onChange={handleTourDataChange}
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
               />
+              {errors.tourPrice && (
+                <p style={errorStyle}>{errors.tourPrice._errors[0]}</p>
+              )}
             </div>
           </div>
 
@@ -422,6 +457,9 @@ export default function EditTour() {
                 value={editedTourData.tourDuration}
                 className="w-full border border-gray-300 rounded-lg p-2 bg-gray-50 text-gray-500 cursor-not-allowed"
               />
+              {errors.tourDuration && (
+                <p style={errorStyle}>{errors.tourDuration._errors[0]}</p>
+              )}
             </div>
           </div>
 
@@ -441,6 +479,9 @@ export default function EditTour() {
                   className="w-full text-sm outline-none"
                 />
               </div>
+              {errors.tourStartDate && (
+                <p style={errorStyle}>{errors.tourStartDate._errors[0]}</p>
+              )}
             </div>
 
             <div>
@@ -457,6 +498,9 @@ export default function EditTour() {
                   className="w-full text-sm outline-none"
                 />
               </div>
+              {errors.tourEndDate && (
+                <p style={errorStyle}>{errors.tourEndDate._errors[0]}</p>
+              )}
             </div>
           </div>
 
