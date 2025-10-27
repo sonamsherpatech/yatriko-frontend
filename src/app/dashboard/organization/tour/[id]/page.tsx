@@ -45,102 +45,114 @@ export default function Tour() {
     );
   }
   return (
-    <div className="max-w-4xl mx-auto mt-10 bg-white border border-blue-200 rounded-2xl shadow-md p-8">
-      {/* Back link */}
-      <button className="flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4 cursor-pointer">
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Tours
-      </button>
-
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-graycd cl-700">Tour Details</h2>
-        <button className="border border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-1 rounded-lg transition">
-          Edit Tour
+    <div className="px-4 py-3 max-w-7xl mx-auto">
+      <div className="mb-6">
+        <button
+          onClick={() => router.push("/dashboard/organization/tour")}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-5 cursor-pointer"
+        >
+          <ArrowLeft size={20} /> Back to Tours
         </button>
+
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">Tour Details</h1>
+          <button
+            onClick={() =>
+              router.push(`/dashboard/organization/tour/edit/${tourId}`)
+            }
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+          >
+            <Edit3 size={18} />
+            Edit Category
+          </button>
+        </div>
       </div>
 
-      {/* Details Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        {/* Left Section - Info */}
-        <div className="space-y-3 text-blue-900">
-          <p>
-            <span className="font-semibold text-blue-700">Tour Title:</span>{" "}
-            {selectedTour.tourTitle}
-          </p>
-
-          <p>
-            <span className="font-semibold text-blue-700">
-              Tour Description:
-            </span>{" "}
-            <span className="block text-gray-700 ml-2">
-              {selectedTour.tourDescription}
-            </span>
-          </p>
-
-          <p>
-            <span className="font-semibold text-blue-700">
-              Tour Number of People:
-            </span>{" "}
-            {selectedTour.tourNumberOfPeople}
-          </p>
-
-          <p>
-            <span className="font-semibold text-blue-700">Tour Price:</span> Rs.{" "}
-            {selectedTour.tourPrice}
-          </p>
-
-          <p>
-            <span className="font-semibold text-blue-700">Tour Duration:</span>{" "}
-            {`${selectedTour.tourDuration} days`}
-          </p>
-
-          {/* Dates */}
-          <div className="flex gap-6">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+        {/* Details Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          {/* Left Section - Info */}
+          <div className="space-y-3 text-gray-900">
             <p>
-              <span className="font-semibold text-blue-700">
-                Tour Start Date:
-              </span>{" "}
-              {selectedTour.tourStartDate}
+              <span className="font-semibold text-gray-700">Tour Title:</span>{" "}
+              {selectedTour.tourTitle}
             </p>
-            <p>
-              <span className="font-semibold text-blue-700">
-                Tour End Date:
-              </span>{" "}
-              {selectedTour.tourEndDate}
-            </p>
-          </div>
 
-          {/* Categories */}
-          <div>
-            <p className="font-semibold text-blue-700 mb-2">Categories:</p>
-            <div className="flex flex-wrap gap-2">
-              {selectedTour?.categories?.map((cat) => (
-                <span
-                  key={cat.categoryId}
-                  className="px-3 py-1 border border-blue-400 text-blue-600 rounded-full text-sm bg-blue-50"
-                >
-                  {cat.categoryName}
-                </span>
-              ))}
+            <p>
+              <span className="font-semibold text-gray-700">
+                Tour Description:
+              </span>{" "}
+              <span className="block text-gray-700 ml-2">
+                {selectedTour.tourDescription}
+              </span>
+            </p>
+
+            <p>
+              <span className="font-semibold text-gray-700">
+                Tour Number of People:
+              </span>{" "}
+              {selectedTour.tourNumberOfPeople}
+            </p>
+
+            <p>
+              <span className="font-semibold text-gray-700">Tour Price:</span>{" "}
+              Rs. {selectedTour.tourPrice}
+            </p>
+
+            <p>
+              <span className="font-semibold text-gray-700">
+                Tour Duration:
+              </span>{" "}
+              {`${selectedTour.tourDuration} days`}
+            </p>
+
+            {/* Dates */}
+            <div className="flex gap-6">
+              <p>
+                <span className="font-semibold text-gray-700">
+                  Tour Start Date:
+                </span>{" "}
+                {selectedTour.tourStartDate}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-700">
+                  Tour End Date:
+                </span>{" "}
+                {selectedTour.tourEndDate}
+              </p>
+            </div>
+
+            {/* Categories */}
+            <div>
+              <p className="font-semibold text-gray-700 mb-2">Categories:</p>
+              <div className="flex flex-wrap gap-2">
+                {selectedTour?.categories?.map((cat) => (
+                  <span
+                    key={cat.categoryId}
+                    className="px-3 py-1 border border-gray-400 text-gray-600 rounded-full text-sm bg-gray-50"
+                  >
+                    {cat.categoryName}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Section - Photo */}
-        <div className="flex justify-center md:justify-end">
-          <div className="border border-blue-200 rounded-xl overflow-hidden shadow-sm">
-            <Image
-              src={
-                typeof selectedTour?.tourPhoto === "string"
-                  ? selectedTour.tourPhoto
-                  : "/static/images/placeholder.jpg"
-              }
-              alt={selectedTour.tourTitle}
-              width={300}
-              height={250}
-              className="object-cover"
-            />
+          {/* Right Section - Photo */}
+          <div className="flex justify-center md:justify-end">
+            <div className="border border-gray-200 overflow-hidden shadow-sm">
+              <Image
+                src={
+                  typeof selectedTour?.tourPhoto === "string"
+                    ? selectedTour.tourPhoto
+                    : "/static/images/placeholder.jpg"
+                }
+                alt={selectedTour.tourTitle}
+                width={300}
+                height={250}
+                className="object-cover"
+              />
+            </div>
           </div>
         </div>
       </div>
