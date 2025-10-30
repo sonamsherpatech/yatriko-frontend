@@ -3,6 +3,7 @@ import authSlice from "./auth/auth-slice";
 import organizationSlice from "./organization/organization-slice";
 import organizationCategorySlice from "./organization/category/category-slice";
 import organizationTourSlice from "./organization/tour/tour-slice";
+import organizationGuideSlice from "./organization/guide/guide-slice";
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     organization: organizationSlice,
     organizationCategory: organizationCategorySlice,
     organizationTour: organizationTourSlice,
+    organizationGuide: organizationGuideSlice,
   },
 });
 

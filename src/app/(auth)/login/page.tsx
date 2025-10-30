@@ -3,10 +3,11 @@ import Image from "next/image";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { ILoginType } from "./login-type";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { loginUser,  setReset } from "@/lib/store/auth/auth-slice";
+import { loginUser, setReset } from "@/lib/store/auth/auth-slice";
 import { Status } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toastify/toastify";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -18,6 +19,7 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const [isPasswordShow, setIsPasswordShow] = useState<boolean>(false);
 
   useEffect(() => {
     dispatch(setReset());
@@ -52,6 +54,10 @@ export default function Login() {
     dispatch(loginUser(data));
   }
 
+  function handlePasswordShow() {
+    setIsPasswordShow((isPasswordShow) => !isPasswordShow);
+  }
+
   return (
     <div className="flex min-h-screen bg-white">
       <div className="w-full flex items-center justify-center">
@@ -71,12 +77,12 @@ export default function Login() {
               />
             </div>
 
-            <div className="mb-4">
+            <div className="mb-4 relative">
               <label className="block text-gray-700 text-sm mb-2">
                 Password
               </label>
               <input
-                type="password"
+                type={isPasswordShow ? "text" : "password"}
                 name="password"
                 value={data.password}
                 onChange={handleLoginDataChange}
@@ -84,11 +90,28 @@ export default function Login() {
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <button
+                type="button"
+                className="cursor-pointer"
+                onClick={handlePasswordShow}
+              >
+                {isPasswordShow ? (
+                  <Eye
+                    size={20}
+                    strokeWidth={1.5}
+                    className="absolute top-10 right-3"
+                  />
+                ) : (
+                  <EyeOff
+                    size={20}
+                    strokeWidth={1.5}
+                    className="absolute top-10 right-3"
+                  />
+                )}
+              </button>
             </div>
 
-            <button
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-            >
+            <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
               Login
             </button>
           </form>

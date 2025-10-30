@@ -6,6 +6,7 @@ import { useAppDispatch } from "@/lib/store/hooks";
 import { registerUser } from "@/lib/store/auth/auth-slice";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toastify/toastify";
+import { Eye, EyeOff } from "lucide-react";
 
 const errorStyle = {
   color: "red",
@@ -23,6 +24,9 @@ export default function Signup() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, any>>({});
+  const [isPasswordShow, setIsPasswordShow] = useState<boolean>(false);
+  const [isConfirmPasswordShow, setIsConfirmPasswordShow] =
+    useState<boolean>(false);
 
   function handleRegisterDataChange(e: ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -53,6 +57,14 @@ export default function Signup() {
 
     //API Call Method Invocation
     dispatch(registerUser(data));
+  }
+
+  function handlePasswordShow() {
+    setIsPasswordShow((isPasswordShow) => !isPasswordShow);
+  }
+
+  function handleConfirmPasswordShow() {
+    setIsConfirmPasswordShow((isConfirmPasswordShow) => !isConfirmPasswordShow);
   }
 
   return (
@@ -93,35 +105,74 @@ export default function Signup() {
               )}
             </div>
 
-            <div className="mb-4">
+            <div className="mb-4 relative">
               <label className="block text-gray-700 text-sm mb-2">
                 Password
               </label>
               <input
-                type="password"
+                type={isPasswordShow ? "text" : "password"}
                 name="password"
                 value={data.password}
                 onChange={handleRegisterDataChange}
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <button
+                type="button"
+                className="cursor-pointer"
+                onClick={handlePasswordShow}
+              >
+                {isPasswordShow ? (
+                  <Eye
+                    size={20}
+                    strokeWidth={1.5}
+                    className="absolute top-10 right-3"
+                  />
+                ) : (
+                  <EyeOff
+                    size={20}
+                    strokeWidth={1.5}
+                    className="absolute top-10 right-3"
+                  />
+                )}
+              </button>
+
               {errors.password && (
                 <p style={errorStyle}>{errors.password._errors[0]}</p>
               )}
             </div>
 
-            <div className="mb-6">
+            <div className="mb-6 relative">
               <label className="block text-gray-700 text-sm mb-2">
                 Confirm Password
               </label>
               <input
-                type="password"
+                type={isConfirmPasswordShow ? "text" : "password"}
                 name="confirmPassword"
                 value={data.confirmPassword}
                 onChange={handleRegisterDataChange}
                 placeholder="Confirm your password"
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <button
+                type="button"
+                className="cursor-pointer"
+                onClick={handleConfirmPasswordShow}
+              >
+                {isConfirmPasswordShow ? (
+                  <Eye
+                    strokeWidth={1.5}
+                    size={20}
+                    className="absolute top-10 right-3"
+                  />
+                ) : (
+                  <EyeOff
+                    strokeWidth={1.5}
+                    size={20}
+                    className="absolute top-10 right-3"
+                  />
+                )}
+              </button>
               {errors.confirmPassword && (
                 <p style={errorStyle}>{errors.confirmPassword._errors[0]}</p>
               )}
