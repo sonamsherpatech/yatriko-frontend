@@ -1,7 +1,7 @@
 "use client";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { schema } from "./create-organization-validation";
-import { IInterfaceOrganizationType } from "./organization-types";
+import { IInterfaceOrganizationPanAndVat, IInterfaceOrganizationType } from "./organization-types";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { createOrganization } from "@/lib/store/organization/organization-slice";
 import { Status } from "@/lib/types";
@@ -18,7 +18,7 @@ export default function CreateOrganization() {
     (state) => state.organization
   );
   const [orgType, setOrgType] = useState<string>("");
-  const [data, setData] = useState<IInterfaceOrganizationType>({
+  const [data, setData] = useState<IInterfaceOrganizationPanAndVat>({
     organizationName: "",
     organizationEmail: "",
     organizationPhoneNumber: "",
@@ -26,6 +26,7 @@ export default function CreateOrganization() {
     organizationLogo: "",
     organizationPanNo: "",
     organizationVatNo: "",
+    createdAt: "",
   });
   const [errors, setErrors] = useState<Record<string, any>>({});
 
@@ -87,7 +88,6 @@ export default function CreateOrganization() {
   function handleOrganizationDataSubmission(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const result = schema.safeParse(data);
-    console.log("Validation result: ", result);
 
     if (!result.success) {
       setErrors(result.error.format());

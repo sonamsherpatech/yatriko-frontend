@@ -115,7 +115,7 @@ export default function Login() {
               Login
             </button>
           </form>
-          <a href="http://localhost:3000/auth/google">
+          <a href="http://localhost:4000/api/google">
             <button className="w-full mt-4 border border-gray-300 py-2 rounded-lg flex items-center justify-center hover:bg-gray-100 transition">
               <Image
                 src="https://www.svgrepo.com/show/355037/google.svg"

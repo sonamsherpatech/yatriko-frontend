@@ -1,6 +1,7 @@
 import { Status } from "@/lib/types";
 
 export interface IOrganizationType {
+  id?: string;
   organizationName: string;
   organizationEmail: string;
   organizationAddress: string;
@@ -8,10 +9,11 @@ export interface IOrganizationType {
   organizationVatNo?: string;
   organizationPanNo?: string;
   organizationLogo: string | File;
+  createdAt: string;
 }
 
 export interface IOrganizationInitialState {
-  organization: IOrganizationType;
+  organization: IOrganizationType[];
   status: Status;
   error: string | null;
 }

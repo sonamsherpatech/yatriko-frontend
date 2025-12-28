@@ -34,7 +34,7 @@ export default function Tour() {
   if (error || !selectedTour) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-xl text-red-600 mb-4">Category Not Found</div>
+        <div className="text-xl text-red-600 mb-4">Tour Not Found</div>
         <button
           onClick={() => router.push("/dashboard/organization/tour")}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer"
@@ -63,7 +63,7 @@ export default function Tour() {
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
           >
             <Edit3 size={18} />
-            Edit Category
+            Edit Tour
           </button>
         </div>
       </div>

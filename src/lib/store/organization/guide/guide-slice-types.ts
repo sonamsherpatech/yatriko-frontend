@@ -9,9 +9,10 @@ export interface IOrganizationGuide {
   guideAddress: string;
   guideSalary: number;
   guidePassword?: string;
-  guideJoinedDate?: File | string;
-  guideImage: string;
+  guideJoinedDate:  string;
+  guideImage: File | string;
   tourId: string;
+  tourTitle?: string;
   createdAt: string;
 }
 
@@ -19,4 +20,5 @@ export interface IOrganizationGuideInitialState {
   guide: IOrganizationGuide[];
   status: Status;
   error: null | string;
+  currentGuide: IOrganizationGuide | null;
 }

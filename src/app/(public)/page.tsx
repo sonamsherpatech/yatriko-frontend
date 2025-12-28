@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
@@ -18,9 +19,12 @@ export default function LandingPage() {
             Explore tours from trusted organizations and start your next journey
             today.
           </p>
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
+          <Link
+            href="/register"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
+          >
             Register
-          </button>
+          </Link>
         </div>
         <div className="relative h-[600px] w-[1200px]">
           <Image
