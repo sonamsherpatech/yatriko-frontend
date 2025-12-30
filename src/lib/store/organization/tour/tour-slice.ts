@@ -101,8 +101,8 @@ export function createTour(data: IOrganizationTourType) {
       const formData = new FormData();
       formData.append("tourTitle", data.tourTitle);
       formData.append("tourDescription", data.tourDescription);
-      formData.append("tourNumberOfPeople", data.tourNumberOfPeople);
-      formData.append("tourPrice", data.tourPrice);
+      formData.append("totalCapacity", data.totalCapacity);
+      formData.append("basePrice", data.basePrice);
       formData.append("tourDuration", data.tourDuration);
       formData.append("tourStartDate", data.tourStartDate);
       formData.append("tourEndDate", data.tourEndDate);
@@ -123,7 +123,6 @@ export function createTour(data: IOrganizationTourType) {
       if (response.status === 200) {
         dispatch(setStatus(Status.SUCCESS));
         dispatch(setError(null));
-        // dispatch(getTours());
       } else {
         dispatch(setStatus(Status.ERROR));
         dispatch(setError("Failed to create tour"));

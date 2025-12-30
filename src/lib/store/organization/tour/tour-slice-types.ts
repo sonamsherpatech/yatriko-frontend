@@ -1,21 +1,36 @@
 import { Status } from "@/lib/types";
 
 export interface IOrganizationTourType {
-  tourId?: string;
+  tourId: string;
   tourTitle: string;
   tourDescription: string;
-  tourNumberOfPeople: string;
-  tourPrice: string;
+
+  //capacity
+  capacity: {
+    total: number;
+    booked: number;
+    available: number;
+    occupancyRate: string;
+  };
+
+  //pricing fields (From backend response)
+  pricing: {
+    basePrice: number;
+    currentPrice: number;
+    savings: number;
+    discountPercentage: number;
+    discountReason: string;
+  };
+
+  tourPhoto: string;
   tourDuration: string;
-  tourPhoto?: File | string;
   tourEndDate: string;
   tourStartDate: string;
-  tourStatus?: string;
-  categoryIds?: string[];
-  categories?: Array<{
+  tourStatus: "active" | "inactive" | "cancelled";
+
+  categories: Array<{
     categoryId: string;
     categoryName: string;
-    categoryDescription: string;
   }>;
 }
 
