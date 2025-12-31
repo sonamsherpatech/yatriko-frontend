@@ -1,6 +1,7 @@
 // src/app/dashboard/organization/tour/page.tsx
 "use client";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { getCategories } from "@/lib/store/organization/category/category-slice";
 import {
   deleteTour,
   getTours,
@@ -8,18 +9,18 @@ import {
 } from "@/lib/store/organization/tour/tour-slice";
 import { showToast } from "@/lib/toastify/toastify";
 import { Status } from "@/lib/types";
-import { 
-  Edit3, 
-  MousePointerSquareDashed, 
-  Trash2, 
-  Calendar, 
-  Users, 
-  TrendingDown, 
+import {
+  Edit3,
+  MousePointerSquareDashed,
+  Trash2,
+  Calendar,
+  Users,
+  TrendingDown,
   Clock,
   Search,
   LayoutGrid,
   List,
-  Filter
+  Filter,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -31,6 +32,7 @@ export default function OrganizationTour() {
     status,
     tour: tours,
   } = useAppSelector((store) => store.organizationTour);
+  const { category } = useAppSelector((store) => store.organizationCategory);
   const dispatch = useAppDispatch();
   const isDeleting = useRef(false);
 
@@ -67,6 +69,7 @@ export default function OrganizationTour() {
 
   useEffect(() => {
     dispatch(getTours());
+    dispatch(getCategories());
     dispatch(resetStatus());
   }, [dispatch]);
 
@@ -98,8 +101,11 @@ export default function OrganizationTour() {
 
   // Filter tours by search and status
   const filteredData = tours?.filter((tour) => {
-    const matchesSearch = tour.tourTitle.toLowerCase().includes(tourQuery.toLowerCase());
-    const matchesStatus = filterStatus === "all" || tour.tourStatus === filterStatus;
+    const matchesSearch = tour.tourTitle
+      .toLowerCase()
+      .includes(tourQuery.toLowerCase());
+    const matchesStatus =
+      filterStatus === "all" || tour.tourStatus === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -111,6 +117,19 @@ export default function OrganizationTour() {
     );
   }
 
+  if (category.length === 0) {
+    return (
+      <div className="flex justify-center items-center flex-col h-screen">
+        <div className="mb-2">First create categories</div>
+        <button
+          className="inline-block px-4 py-2 bg-blue-600 text-gray-100 rounded-full cursor-pointer hover:bg-blue-800 transition"
+          onClick={() => router.push("/dashboard/organization/category")}
+        >
+          Go to Category
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="p-4 md:p-8">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
@@ -135,7 +154,10 @@ export default function OrganizationTour() {
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <input
               type="text"
               name="SearchTour"
@@ -148,7 +170,10 @@ export default function OrganizationTour() {
 
           {/* Status Filter */}
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Filter
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -188,9 +213,19 @@ export default function OrganizationTour() {
 
         {/* Content */}
         {viewMode === "card" ? (
-          <CardView tours={filteredData} onEdit={handleEditTour} onDelete={handleDeleteTour} onSelect={handleSelectTour} />
+          <CardView
+            tours={filteredData}
+            onEdit={handleEditTour}
+            onDelete={handleDeleteTour}
+            onSelect={handleSelectTour}
+          />
         ) : (
-          <TableView tours={filteredData} onEdit={handleEditTour} onDelete={handleDeleteTour} onSelect={handleSelectTour} />
+          <TableView
+            tours={filteredData}
+            onEdit={handleEditTour}
+            onDelete={handleDeleteTour}
+            onSelect={handleSelectTour}
+          />
         )}
 
         {filteredData.length === 0 && (
@@ -232,17 +267,17 @@ function CardView({ tours, onEdit, onDelete, onSelect }: any) {
 function TourCard({ tour, onEdit, onDelete, onSelect }: any) {
   // Add safety checks for tour data
   if (!tour) return null;
-  
-  const { 
-    pricing = {}, 
-    capacity = {}, 
-    tourTitle = "Untitled Tour", 
-    tourDescription = "", 
-    tourPhoto = "", 
-    tourDuration = "N/A", 
-    tourStartDate = new Date().toISOString(), 
-    tourStatus = "active", 
-    categories = [] 
+
+  const {
+    pricing = {},
+    capacity = {},
+    tourTitle = "Untitled Tour",
+    tourDescription = "",
+    tourPhoto = "",
+    tourDuration = "N/A",
+    tourStartDate = new Date().toISOString(),
+    tourStatus = "active",
+    categories = [],
   } = tour;
 
   // Ensure pricing has default values
@@ -251,7 +286,7 @@ function TourCard({ tour, onEdit, onDelete, onSelect }: any) {
     currentPrice: pricing?.currentPrice || 0,
     savings: pricing?.savings || 0,
     discountPercentage: pricing?.discountPercentage || 0,
-    discountReason: pricing?.discountReason || null
+    discountReason: pricing?.discountReason || null,
   };
 
   // Ensure capacity has default values
@@ -259,7 +294,7 @@ function TourCard({ tour, onEdit, onDelete, onSelect }: any) {
     total: capacity?.total || 0,
     booked: capacity?.booked || 0,
     available: capacity?.available || 0,
-    occupancyRate: capacity?.occupancyRate || "0%"
+    occupancyRate: capacity?.occupancyRate || "0%",
   };
 
   // Calculate days until tour
@@ -299,23 +334,32 @@ function TourCard({ tour, onEdit, onDelete, onSelect }: any) {
       {/* Image Section */}
       <div className="relative h-48 overflow-hidden">
         <img
-          src={tourPhoto || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400"}
+          src={
+            tourPhoto ||
+            "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400"
+          }
           alt={tourTitle}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
         />
-        
+
         {/* Status Badge */}
-        <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold shadow-lg ${
-          tourStatus === "active" ? "bg-green-500 text-white" :
-          tourStatus === "inactive" ? "bg-gray-500 text-white" :
-          "bg-red-500 text-white"
-        }`}>
+        <div
+          className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold shadow-lg ${
+            tourStatus === "active"
+              ? "bg-green-500 text-white"
+              : tourStatus === "inactive"
+              ? "bg-gray-500 text-white"
+              : "bg-red-500 text-white"
+          }`}
+        >
           {tourStatus.toUpperCase()}
         </div>
 
         {/* Urgency Badge */}
         {urgency && (
-          <div className={`absolute top-3 right-3 ${urgency.color} text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg animate-pulse`}>
+          <div
+            className={`absolute top-3 right-3 ${urgency.color} text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg animate-pulse`}
+          >
             {urgency.message}
           </div>
         )}
@@ -363,7 +407,9 @@ function TourCard({ tour, onEdit, onDelete, onSelect }: any) {
         <div className="space-y-2 mb-4">
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span className="truncate">{new Date(tourStartDate).toLocaleDateString()}</span>
+            <span className="truncate">
+              {new Date(tourStartDate).toLocaleDateString()}
+            </span>
             <span className="mx-2">•</span>
             <Clock className="w-4 h-4 mr-1 flex-shrink-0" />
             <span className="truncate">{tourDuration}</span>
@@ -469,21 +515,31 @@ function TableView({ tours, onEdit, onDelete, onSelect }: any) {
             <th className="px-4 py-3 border-b font-semibold">Pricing</th>
             <th className="px-4 py-3 border-b font-semibold">Discount</th>
             <th className="px-4 py-3 border-b font-semibold">Status</th>
-            <th className="px-4 py-3 border-b font-semibold text-center">Actions</th>
+            <th className="px-4 py-3 border-b font-semibold text-center">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
           {tours.map((tour: any) => (
-            <tr key={tour.tourId} className="hover:bg-gray-50 transition-colors border-b">
+            <tr
+              key={tour.tourId}
+              className="hover:bg-gray-50 transition-colors border-b"
+            >
               <td className="px-4 py-4">
                 <div className="flex items-center gap-3">
                   <img
-                    src={tour.tourPhoto || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=100"}
+                    src={
+                      tour.tourPhoto ||
+                      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=100"
+                    }
                     alt={tour.tourTitle}
                     className="w-12 h-12 rounded-lg object-cover"
                   />
                   <div>
-                    <p className="font-semibold text-gray-800">{tour.tourTitle}</p>
+                    <p className="font-semibold text-gray-800">
+                      {tour.tourTitle}
+                    </p>
                     <p className="text-xs text-gray-500">{tour.tourDuration}</p>
                   </div>
                 </div>
@@ -493,7 +549,9 @@ function TableView({ tours, onEdit, onDelete, onSelect }: any) {
                   <p className="font-medium text-gray-800">
                     {tour.capacity.booked}/{tour.capacity.total}
                   </p>
-                  <p className="text-xs text-gray-500">{tour.capacity.occupancyRate}</p>
+                  <p className="text-xs text-gray-500">
+                    {tour.capacity.occupancyRate}
+                  </p>
                 </div>
               </td>
               <td className="px-4 py-4">
