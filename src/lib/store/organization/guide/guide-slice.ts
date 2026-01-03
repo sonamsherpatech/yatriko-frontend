@@ -9,6 +9,14 @@ import API from "@/lib/http";
 
 const initialState: IOrganizationGuideInitialState = {
   guide: [],
+  stats: {
+    total: 0,
+    active: 0,
+    inactive: 0,
+    suspended: 0,
+    assigned: 0,
+    available: 0,
+  },
   status: Status.IDLE,
   error: null,
   currentGuide: null,
@@ -23,6 +31,12 @@ const organizationGuideSlice = createSlice({
       action: PayloadAction<IOrganizationGuide[]>
     ) {
       state.guide = action.payload;
+    },
+    setStats(
+      state: IOrganizationGuideInitialState,
+      action: PayloadAction<any>
+    ) {
+      state.stats = action.payload;
     },
     setStatus(
       state: IOrganizationGuideInitialState,
@@ -49,7 +63,10 @@ const organizationGuideSlice = createSlice({
     },
     setUpdateGuideStatus(
       state: IOrganizationGuideInitialState,
-      action: PayloadAction<{ status: string; id?: string }>
+      action: PayloadAction<{
+        status?: "active" | "inactive" | "suspended";
+        id?: string;
+      }>
     ) {
       const { status, id } = action.payload;
 
@@ -78,6 +95,7 @@ const organizationGuideSlice = createSlice({
 
 export const {
   setGuide,
+  setStats,
   setStatus,
   setGuideDelete,
   setCurrentGuide,
@@ -100,19 +118,21 @@ export function createGuide(data: IOrganizationGuide) {
       formData.append("guideEmail", data.guideEmail);
       formData.append("guidePhoneNumber", data.guidePhoneNumber);
       formData.append("guideAddress", data.guideAddress);
-      formData.append("guideSalary", data.guideSalary.toString());
+      formData.append("guideSalary", data.guideSalary?.toString() || "0");
 
-      if (data.guideImage) {
+      if (data.guideImage && data.guideImage instanceof File) {
         formData.append("guideImage", data.guideImage);
       }
-      formData.append("tourId", data.tourId);
+      if (data.tourId) {
+        formData.append("tourId", data.tourId);
+      }
 
       const response = await API.post("/organization/guide", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      if (response.status === 200) {
+      if (response.status === 201 || response.status === 200) {
         dispactch(setStatus(Status.SUCCESS));
         dispactch(setError(null));
       } else {
@@ -120,7 +140,8 @@ export function createGuide(data: IOrganizationGuide) {
         dispactch(setError("Failed to create guide"));
       }
     } catch (error: any) {
-      console.log(error);
+      console.log("Create guide error:", error);
+      dispactch(setStatus(Status.ERROR));
       dispactch(
         setError(error.response?.data?.message || "Failed to create guide")
       );
@@ -138,13 +159,19 @@ export function getGuides() {
       if (response.status === 200) {
         dispatch(setStatus(Status.SUCCESS));
         dispatch(setError(null));
-        response.data.data.length > 0 && dispatch(setGuide(response.data.data));
+        if (response.data.data && response.data.data.length > 0) {
+          dispatch(setGuide(response.data.data));
+        }
+
+        if (response.data.stats) {
+          dispatch(setStats(response.data.stats));
+        }
       } else {
         dispatch(setStatus(Status.ERROR));
         dispatch(setError("Failed to fetch guide"));
       }
     } catch (error: any) {
-      console.log(error);
+      console.log("Fetch guides error:", error);
       dispatch(setStatus(Status.ERROR));
       dispatch(
         setError(error.response?.data?.message || "Failed to fetch guide")
@@ -201,20 +228,25 @@ export function getGuideById(id?: string) {
         dispatch(setError("Failed to fetch guide"));
       }
     } catch (error: any) {
-      console.log(error);
+      console.error("Fetch guide error:", error);
       dispatch(setStatus(Status.ERROR));
-      dispatch(setError(error || "Failed to fetch guide"));
+      dispatch(
+        setError(error.response?.data?.message || "Failed to fetch guide")
+      );
     }
   };
 }
 
 //5. API call to update guide status
-export function updateGuideStatusById(guideStatus: string, id?: string) {
+export function updateGuideStatusById(
+  guideStatus?: "active" | "inactive" | "suspended",
+  id?: string
+) {
   return async function updateGuideStatusByIdThunks(dispatch: AppDispatch) {
     dispatch(setStatus(Status.LOADING));
     dispatch(setError(null));
     try {
-      const response = await API.patch(`/organization/guide/${id}`, {
+      const response = await API.patch(`/organization/guide/${id}/status`, {
         guideStatus,
       });
       if (response.status === 200) {
@@ -230,6 +262,134 @@ export function updateGuideStatusById(guideStatus: string, id?: string) {
       console.log(error);
       dispatch(setStatus(Status.ERROR));
       dispatch(setError(error || "Failed to updated guide"));
+    }
+  };
+}
+
+//6. API call to update guide
+export function updateGuide(payload: { guideId: string; data: FormData }) {
+  return async function updateGuideThunk(dispatch: AppDispatch) {
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
+    try {
+      const response = await API.put(
+        `/organization/guide/${payload.guideId}`,
+        payload.data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        dispatch(setStatus(Status.SUCCESS));
+        dispatch(setError(null));
+      } else {
+        dispatch(setStatus(Status.ERROR));
+        dispatch(setError("Failed to update guide"));
+      }
+    } catch (error: any) {
+      console.log("Update guide error: ", error);
+      dispatch(setStatus(Status.ERROR));
+      dispatch(
+        setError(error.response?.data?.message || "Failed to update guide")
+      );
+    }
+  };
+}
+
+//7. API call to assign guide to tour
+export function assignGuideToTour(guideId: string, tourId: string) {
+  return async function assignGuideToTourThunk(dispatch: AppDispatch) {
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
+
+    try {
+      const response = await API.post(`/organization/guide/assign`, {
+        guideId,
+        tourId,
+      });
+
+      if (response.status === 200) {
+        dispatch(setStatus(Status.SUCCESS));
+        dispatch(setError(null));
+      } else {
+        dispatch(setStatus(Status.ERROR));
+        dispatch(setError("Failed to assign guide to tour"));
+      }
+    } catch (error: any) {
+      console.error("Assign Tour error:", error);
+      dispatch(setStatus(Status.ERROR));
+      dispatch(
+        setError(
+          error.response?.data?.message || "Failed to assign guide to tour"
+        )
+      );
+    }
+  };
+}
+
+
+
+//8. API call to unassign guide from tour
+export function unassignGuideFromTour(guideId: string) {
+  return async function unassignGuideFromTourThunk(dispatch: AppDispatch) {
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
+
+    try {
+      const response = await API.patch(
+        `/organization/guide/${guideId}/unassign`
+      );
+
+      if (response.status === 200) {
+        dispatch(setStatus(Status.SUCCESS));
+        dispatch(setError(null));
+      } else {
+        dispatch(setStatus(Status.ERROR));
+        dispatch(setError("Failed to unassign guide from tour"));
+      }
+    } catch (error: any) {
+      console.error("Unassigned guide error: ", error);
+      dispatch(setStatus(Status.ERROR));
+      dispatch(
+        setError(
+          error.response?.data?.message || "Failed to unassign guide from tour"
+        )
+      );
+    }
+  };
+}
+
+//9. API call to get available guides
+export function getAvailableGuides() {
+  return async function getAvailableGuidesThunk(dispatch: AppDispatch) {
+    dispatch(setStatus(Status.LOADING));
+    dispatch(setError(null));
+
+    try {
+      const response = await API.get(`/organization/guide/available`);
+
+      if (response.status === 200) {
+        dispatch(setStatus(Status.SUCCESS));
+        dispatch(setError(null));
+
+        if (response.data.data && response.data.data.length > 0) {
+          dispatch(setGuide(response.data.data));
+        }
+      } else {
+        dispatch(setStatus(Status.ERROR));
+        dispatch(setError("Failed to get available guides"));
+      }
+    } catch (error: any) {
+      console.log("Available Guides error: ", error);
+      dispatch(setStatus(Status.ERROR));
+      dispatch(
+        setError(
+          error.response?.data?.message || "Failed to get available guides"
+        )
+      );
     }
   };
 }

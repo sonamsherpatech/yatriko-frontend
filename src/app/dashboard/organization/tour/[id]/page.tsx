@@ -335,7 +335,7 @@ export default function Tour() {
                     NPR{safePricing.basePrice.toFixed(2)}
                   </span>
                 )}
-                <span className="text-4xl font-bold text-green-600">
+                <span className="text-2xl font-bold text-green-600">
                   NPR{safePricing.currentPrice.toFixed(2)}
                 </span>
               </div>

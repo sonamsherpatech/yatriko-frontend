@@ -3,23 +3,30 @@ import { z } from "zod";
 const schema = z.object({
   guideName: z
     .string()
-    .nonempty("*cannot be empty")
-    .regex(/^[a-zA-Z\s]*$/, "*should only contain alphabet"),
+    .min(1, "*cannot be empty")
+    .regex(/^[a-zA-Z\s]*$/, "*should only contain alphabets"),
+
   guideEmail: z
+    .string()
+    .min(1, "*cannot be empty")
     .email("*invalid email format")
-    .nonempty("*cannot be empty")
     .max(255, "*too long")
-    .toLowerCase()
-    .trim(),
+    .transform((v) => v.toLowerCase().trim()),
+
   guidePhoneNumber: z
     .string()
-    .nonempty("*cannot be empty")
-    .max(15, "*too long")
-    .regex(/\+977\s?(98|97)\d{8}$/, "*invalid phone number format"),
+    .min(1, "*cannot be empty")
+    .regex(/^\+977\s?(98|97)\d{8}$/, "*invalid phone number format"),
+
+  guideAddress: z.string().optional(),
+
   guideSalary: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "*must be a valid price")
-    .refine((sal) => Number(sal) > 0, "*cannot be negative"),
+    .number("*salary must be a number")
+    .positive("*cannot be zero or negative"),
+
+  guideImage: z.any().optional(),
+
+  tourId: z.string().optional(),
 });
 
 export default schema;
